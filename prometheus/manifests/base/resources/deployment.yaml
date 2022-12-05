@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: prometheus
+  labels:
+    app: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          args:
+            - "--storage.tsdb.retention.time=4h"
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
+          ports:
+            - containerPort: 9090
+          resources:
+            limits:
+              cpu: 500m
+              memory: 800M
+            requests:
+              cpu: 250m
+              memory: 500M
+          volumeMounts:
+            - name: prometheus-config-map
+              mountPath: /etc/prometheus/
+            - name: prometheus-storage-volume
+              mountPath: /prometheus/
+          securityContext:
+            readOnlyRootFilesystem: true
+      volumes:
+        - name: prometheus-storage-volume
+          persistentVolumeClaim:
+            claimName: prometheus-pvc
+        - name: prometheus-config-map
+          configMap:
+            defaultMode: 420
+            name: prometheus-config-map
+      securityContext:
+        # needed to run as root for now
+        runAsUser: 0
+        runAsNonRoot: false
+        runAsGroup: 65534
+        fsGroup: 2000
+      

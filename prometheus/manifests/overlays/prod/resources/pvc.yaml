@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+spec:
+  storageClassName: local-storage
+  selector:
+    matchLabels:
+      app: prometheus-pv
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 400Mi
