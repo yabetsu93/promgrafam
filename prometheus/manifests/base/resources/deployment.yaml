@@ -9,6 +9,11 @@ spec:
   selector:
     matchLabels:
       app: prometheus
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -17,6 +22,7 @@ spec:
       containers:
         - name: prometheus
           image: prom/prometheus
+          imagePullPolicy: Always
           args:
             - "--storage.tsdb.retention.time=4h"
             - "--config.file=/etc/prometheus/prometheus.yml"
